@@ -23,6 +23,8 @@ app.get("/", (req, res) => {
     res.send("Servidor funcionando");
 });
 
+console.log("TMDB API KEY:", process.env.TMDB_API_KEY);
+
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
