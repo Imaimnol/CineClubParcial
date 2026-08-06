@@ -4,6 +4,9 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 
+const moviesRoutes = require("./routes/movies");
+const reviewsRoutes = require("./routes/reviews");
+
 const app = express();
 
 const PORT = process.env.PORT || 3001;
@@ -12,6 +15,9 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+
+app.use("/api/movies", moviesRoutes);
+app.use("/api/reviews", reviewsRoutes);
 
 app.get("/", (req, res) => {
     res.send("Servidor funcionando");
