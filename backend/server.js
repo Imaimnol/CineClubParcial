@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 app.use("/api/movies", moviesRoutes);
-app.use("/api/reviews", reviewsRoutes);
+app.use("/api/movies", reviewsRoutes);
 
 app.get("/", (req, res) => {
     res.send("Servidor funcionando");
