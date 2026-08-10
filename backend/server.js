@@ -16,14 +16,14 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
+// Rutas
 app.use("/api/movies", moviesRoutes);
 app.use("/api/movies", reviewsRoutes);
+app.use("/api/reviews", reviewsRoutes);
 
 app.get("/", (req, res) => {
     res.send("Servidor funcionando");
 });
-
-console.log("TMDB API KEY:", process.env.TMDB_API_KEY);
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);

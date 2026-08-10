@@ -7,26 +7,26 @@ const reseñas = [];
 router.post("/:id/reviews", (req, res) => {
 
     const movieId = req.params.id;
-    const { usuario, puntaje, comentario } = req.body;
+    const { author, score, comment } = req.body;
 
-    if (!usuario || !puntaje || !comentario) {
+    if (!author || score === undefined || !comment) {
         return res.status(400).json({
             mensaje: "Todos los campos son obligatorios."
         });
     }
 
-    if (puntaje < 1 || puntaje > 5) {
+    if (typeof score !== "number" || score < 1 || score > 5) {
         return res.status(400).json({
-            mensaje: "El puntaje debe estar entre 1 y 5."
+            mensaje: "El score debe ser un número entre 1 y 5."
         });
     }
 
     const nuevaReseña = {
-        id: reseñas.length + 1,
+        id: Date.now(),
         movieId: movieId,
-        usuario: usuario,
-        puntaje: puntaje,
-        comentario: comentario
+        author: author,
+        score: score,
+        comment: comment
     };
 
     reseñas.push(nuevaReseña);
@@ -45,7 +45,7 @@ router.get("/:id/reviews", (req, res) => {
     res.json(reseñasPelicula);
 });
 
-router.delete("/reviews/:reviewId", (req, res) => {
+router.delete("/:reviewId", (req, res) => {
 
     const reviewId = Number(req.params.reviewId);
 
@@ -67,4 +67,11 @@ router.delete("/reviews/:reviewId", (req, res) => {
     });
 });
 
+function obtenerReseñas(movieId) {
+    return reseñas.filter(
+        (reseña) => reseña.movieId === movieId
+    );
+}
+
 module.exports = router;
+module.exports.obtenerReseñas = obtenerReseñas;

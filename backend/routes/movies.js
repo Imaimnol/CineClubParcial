@@ -3,6 +3,8 @@ const axios = require("axios");
 
 const router = express.Router();
 
+const reviewsRoutes = require("./reviews");
+
 router.get("/search", async (req, res) => {
 
     const query = req.query.q;
@@ -45,7 +47,6 @@ router.get("/search", async (req, res) => {
         });
 
     }
-
 });
 
 router.get("/:id", async (req, res) => {
@@ -66,6 +67,19 @@ router.get("/:id", async (req, res) => {
 
         const pelicula = response.data;
 
+        const reseñas = reviewsRoutes.obtenerReseñas(id);
+
+        let avgScore = 0;
+
+        if (reseñas.length > 0) {
+            const suma = reseñas.reduce(
+                (total, reseña) => total + reseña.score,
+                0
+            );
+
+            avgScore = suma / reseñas.length;
+        }
+
         res.json({
             id: pelicula.id,
             titulo: pelicula.title,
@@ -76,17 +90,24 @@ router.get("/:id", async (req, res) => {
             imagen: pelicula.poster_path
                 ? `https://image.tmdb.org/t/p/w500${pelicula.poster_path}`
                 : null,
-            puntuacion: pelicula.vote_average
+            puntuacion: pelicula.vote_average,
+            reseñas: reseñas,
+            avgScore: avgScore
         });
 
     } catch (error) {
+
+        if (error.response && error.response.status === 404) {
+            return res.status(404).json({
+                mensaje: "Película no encontrada."
+            });
+        }
 
         res.status(500).json({
             mensaje: "Error al obtener la película."
         });
 
     }
-
 });
 
 module.exports = router;
