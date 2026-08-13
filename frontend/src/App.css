@@ -106,3 +106,67 @@ main {
     border-radius: 5px;
     cursor: pointer;
 }
+
+.detalle {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    text-align: left;
+}
+
+.detalle img {
+    width: 300px;
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.detalle p {
+    margin: 15px 0;
+}
+
+.detalle button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.review-form {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.review-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+}
+
+.review-form form div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.review-form input,
+.review-form select,
+.review-form textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.review-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.review-form button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

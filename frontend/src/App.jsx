@@ -1,11 +1,15 @@
 import { useState } from "react";
 import SearchBar from "./components/SearchBar";
 import MovieGrid from "./components/MovieGrid";
+import ReviewList from "./components/ReviewList";
+import ReviewForm from "./components/ReviewForm";
 import "./App.css";
 
 function App() {
     const [vista, setVista] = useState("inicio");
     const [peliculas, setPeliculas] = useState([]);
+    const [peliculaSeleccionada, setPeliculaSeleccionada] = useState(null);
+    const [reseñas, setReseñas] = useState([]);
 
     const buscarPeliculas = async (texto) => {
         try {
@@ -26,8 +30,57 @@ function App() {
         }
     };
 
-    const seleccionarPelicula = (id) => {
-        console.log("Película seleccionada:", id);
+    const seleccionarPelicula = async (id) => {
+        try {
+            const response = await fetch(
+                `http://localhost:3001/api/movies/${id}`
+            );
+
+            if (!response.ok) {
+                throw new Error("Error al obtener los detalles.");
+            }
+
+            const data = await response.json();
+
+            const reviewsResponse = await fetch(
+                `http://localhost:3001/api/movies/${id}/reviews`
+            );
+
+            if (!reviewsResponse.ok) {
+                throw new Error("Error al obtener las reseñas.");
+            }
+
+            const reviewsData = await reviewsResponse.json();
+
+            setPeliculaSeleccionada(data);
+            setReseñas(reviewsData);
+            setVista("detalle");
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const eliminarReseña = async (reviewId) => {
+        try {
+            const response = await fetch(
+                `http://localhost:3001/api/movies/${reviewId}`,
+                {
+                    method: "DELETE",
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Error al eliminar la reseña.");
+            }
+
+            setReseñas((reseñasActuales) =>
+                reseñasActuales.filter(
+                    (reseña) => reseña.id !== reviewId
+                )
+            );
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -69,6 +122,74 @@ function App() {
                         <MovieGrid
                             peliculas={peliculas}
                             onSeleccionar={seleccionarPelicula}
+                        />
+                    </section>
+                )}
+
+                {vista === "detalle" && peliculaSeleccionada && (
+                    <section className="detalle">
+                        <button onClick={() => setVista("buscar")}>
+                            ← Volver a resultados
+                        </button>
+
+                        <h2>{peliculaSeleccionada.titulo}</h2>
+
+                        {peliculaSeleccionada.imagen && (
+                            <img
+                                src={peliculaSeleccionada.imagen}
+                                alt={peliculaSeleccionada.titulo}
+                            />
+                        )}
+
+                        <p>
+                            <strong>Descripción:</strong>{" "}
+                            {peliculaSeleccionada.descripcion ||
+                                "Sin descripción disponible."}
+                        </p>
+
+                        <p>
+                            <strong>Fecha de estreno:</strong>{" "}
+                            {peliculaSeleccionada.fechaEstreno ||
+                                "Sin fecha disponible."}
+                        </p>
+
+                        <p>
+                            <strong>Duración:</strong>{" "}
+                            {peliculaSeleccionada.duracion
+                                ? `${peliculaSeleccionada.duracion} minutos`
+                                : "Sin información."}
+                        </p>
+
+                        <p>
+                            <strong>Puntuación:</strong>{" "}
+                            {peliculaSeleccionada.puntuacion}
+                        </p>
+
+                        <div>
+                            <strong>Géneros:</strong>
+
+                            {peliculaSeleccionada.generos &&
+                                peliculaSeleccionada.generos.map((genero) => (
+                                    <span key={genero.id}>
+                                        {" "}
+                                        {genero.name}
+                                    </span>
+                                ))}
+                        </div>
+
+                        <ReviewList
+                            reseñas={reseñas}
+                            onEliminar={eliminarReseña}
+                        />
+
+                        <ReviewForm
+                            movieId={peliculaSeleccionada.id}
+                            onReseñaCreada={(nuevaReseña) => {
+                                setReseñas((reseñasActuales) => [
+                                    ...reseñasActuales,
+                                    nuevaReseña,
+                                ]);
+                            }}
                         />
                     </section>
                 )}
