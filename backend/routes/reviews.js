@@ -4,8 +4,8 @@ const router = express.Router();
 
 const reseñas = [];
 
+// Crear una reseña para una película
 router.post("/:id/reviews", (req, res) => {
-
     const movieId = req.params.id;
     const { author, score, comment } = req.body;
 
@@ -34,8 +34,8 @@ router.post("/:id/reviews", (req, res) => {
     res.status(201).json(nuevaReseña);
 });
 
+// Obtener las reseñas de una película
 router.get("/:id/reviews", (req, res) => {
-
     const movieId = req.params.id;
 
     const reseñasPelicula = reseñas.filter(
@@ -45,8 +45,8 @@ router.get("/:id/reviews", (req, res) => {
     res.json(reseñasPelicula);
 });
 
+// Eliminar una reseña
 router.delete("/:reviewId", (req, res) => {
-
     const reviewId = Number(req.params.reviewId);
 
     const indice = reseñas.findIndex(
@@ -67,6 +67,7 @@ router.delete("/:reviewId", (req, res) => {
     });
 });
 
+// Obtener reseñas de una película para utilizarlas desde otros módulos
 function obtenerReseñas(movieId) {
     return reseñas.filter(
         (reseña) => reseña.movieId === movieId
