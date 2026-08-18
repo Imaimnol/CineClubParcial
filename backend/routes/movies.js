@@ -6,7 +6,6 @@ const router = express.Router();
 const reviewsRoutes = require("./reviews");
 
 router.get("/search", async (req, res) => {
-
     const query = req.query.q;
 
     if (!query) {
@@ -16,7 +15,6 @@ router.get("/search", async (req, res) => {
     }
 
     try {
-
         const response = await axios.get(
             "https://api.themoviedb.org/3/search/movie",
             {
@@ -41,20 +39,16 @@ router.get("/search", async (req, res) => {
         res.json(peliculas);
 
     } catch (error) {
-
         res.status(500).json({
             mensaje: "Error al consultar TMDB."
         });
-
     }
 });
 
 router.get("/:id", async (req, res) => {
-
     const id = req.params.id;
 
     try {
-
         const response = await axios.get(
             `https://api.themoviedb.org/3/movie/${id}`,
             {
@@ -67,8 +61,10 @@ router.get("/:id", async (req, res) => {
 
         const pelicula = response.data;
 
+        // Obtener las reseñas de nuestra aplicación
         const reseñas = reviewsRoutes.obtenerReseñas(id);
 
+        // Calcular el promedio de las reseñas
         let avgScore = 0;
 
         if (reseñas.length > 0) {
@@ -96,7 +92,6 @@ router.get("/:id", async (req, res) => {
         });
 
     } catch (error) {
-
         if (error.response && error.response.status === 404) {
             return res.status(404).json({
                 mensaje: "Película no encontrada."
@@ -106,7 +101,6 @@ router.get("/:id", async (req, res) => {
         res.status(500).json({
             mensaje: "Error al obtener la película."
         });
-
     }
 });
 

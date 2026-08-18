@@ -60,27 +60,59 @@ function App() {
         }
     };
 
+    const actualizarPromedio = (listaReseñas) => {
+        if (listaReseñas.length === 0) {
+            return 0;
+        }
+
+        const suma = listaReseñas.reduce(
+            (total, reseña) => total + reseña.score,
+            0
+        );
+
+        return suma / listaReseñas.length;
+    };
+
     const eliminarReseña = async (reviewId) => {
         try {
             const response = await fetch(
-                `http://localhost:3001/api/movies/${reviewId}`,
-                {
-                    method: "DELETE",
-                }
-            );
+    `http://localhost:3001/api/reviews/${reviewId}`,
+    {
+        method: "DELETE",
+    }
+);
 
             if (!response.ok) {
                 throw new Error("Error al eliminar la reseña.");
             }
 
-            setReseñas((reseñasActuales) =>
-                reseñasActuales.filter(
-                    (reseña) => reseña.id !== reviewId
-                )
+            const nuevasReseñas = reseñas.filter(
+                (reseña) => reseña.id !== reviewId
             );
+
+            setReseñas(nuevasReseñas);
+
+            setPeliculaSeleccionada((peliculaActual) => ({
+                ...peliculaActual,
+                avgScore: actualizarPromedio(nuevasReseñas),
+            }));
         } catch (error) {
             console.error(error);
         }
+    };
+
+    const agregarReseña = (nuevaReseña) => {
+        const nuevasReseñas = [
+            ...reseñas,
+            nuevaReseña,
+        ];
+
+        setReseñas(nuevasReseñas);
+
+        setPeliculaSeleccionada((peliculaActual) => ({
+            ...peliculaActual,
+            avgScore: actualizarPromedio(nuevasReseñas),
+        }));
     };
 
     return (
@@ -161,8 +193,15 @@ function App() {
                         </p>
 
                         <p>
-                            <strong>Puntuación:</strong>{" "}
+                            <strong>Puntuación TMDB:</strong>{" "}
                             {peliculaSeleccionada.puntuacion}
+                        </p>
+
+                        <p>
+                            <strong>Promedio CineClub:</strong>{" "}
+                            {peliculaSeleccionada.avgScore > 0
+                                ? peliculaSeleccionada.avgScore.toFixed(1)
+                                : "Todavía no hay puntuaciones"}
                         </p>
 
                         <div>
@@ -184,12 +223,7 @@ function App() {
 
                         <ReviewForm
                             movieId={peliculaSeleccionada.id}
-                            onReseñaCreada={(nuevaReseña) => {
-                                setReseñas((reseñasActuales) => [
-                                    ...reseñasActuales,
-                                    nuevaReseña,
-                                ]);
-                            }}
+                            onReseñaCreada={agregarReseña}
                         />
                     </section>
                 )}
