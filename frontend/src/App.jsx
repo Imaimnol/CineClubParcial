@@ -10,8 +10,13 @@ function App() {
     const [peliculas, setPeliculas] = useState([]);
     const [peliculaSeleccionada, setPeliculaSeleccionada] = useState(null);
     const [reseñas, setReseñas] = useState([]);
+    const [cargando, setCargando] = useState(false);
+    const [error, setError] = useState("");
 
     const buscarPeliculas = async (texto) => {
+        setCargando(true);
+        setError("");
+
         try {
             const response = await fetch(
                 `${import.meta.env.VITE_API_URL}/api/movies/search?q=${encodeURIComponent(texto)}`
@@ -27,10 +32,17 @@ function App() {
             setVista("buscar");
         } catch (error) {
             console.error(error);
+            setError("No se pudieron cargar las películas. Intentá nuevamente.");
+        } finally {
+            setCargando(false);
         }
     };
 
     const seleccionarPelicula = async (id) => {
+        setCargando(true);
+        setError("");
+        setVista("detalle");
+
         try {
             const response = await fetch(
                 `${import.meta.env.VITE_API_URL}/api/movies/${id}`
@@ -54,9 +66,13 @@ function App() {
 
             setPeliculaSeleccionada(data);
             setReseñas(reviewsData);
-            setVista("detalle");
         } catch (error) {
             console.error(error);
+            setError(
+                "No se pudieron cargar los detalles de la película. Intentá nuevamente."
+            );
+        } finally {
+            setCargando(false);
         }
     };
 
@@ -98,6 +114,7 @@ function App() {
             }));
         } catch (error) {
             console.error(error);
+            setError("No se pudo eliminar la reseña. Intentá nuevamente.");
         }
     };
 
@@ -151,80 +168,102 @@ function App() {
 
                         <SearchBar onBuscar={buscarPeliculas} />
 
-                        <MovieGrid
-                            peliculas={peliculas}
-                            onSeleccionar={seleccionarPelicula}
-                        />
+                        {cargando ? (
+                            <p>Buscando películas...</p>
+                        ) : error ? (
+                            <p>{error}</p>
+                        ) : (
+                            <MovieGrid
+                                peliculas={peliculas}
+                                onSeleccionar={seleccionarPelicula}
+                            />
+                        )}
                     </section>
                 )}
 
-                {vista === "detalle" && peliculaSeleccionada && (
+                {vista === "detalle" && (
                     <section className="detalle">
-                        <button onClick={() => setVista("buscar")}>
-                            ← Volver a resultados
-                        </button>
+                        {cargando ? (
+                            <p>Cargando detalles...</p>
+                        ) : error ? (
+                            <>
+                                <button onClick={() => setVista("buscar")}>
+                                    ← Volver a resultados
+                                </button>
 
-                        <h2>{peliculaSeleccionada.titulo}</h2>
+                                <p>{error}</p>
+                            </>
+                        ) : peliculaSeleccionada ? (
+                            <>
+                                <button onClick={() => setVista("buscar")}>
+                                    ← Volver a resultados
+                                </button>
 
-                        {peliculaSeleccionada.imagen && (
-                            <img
-                                src={peliculaSeleccionada.imagen}
-                                alt={peliculaSeleccionada.titulo}
-                            />
-                        )}
+                                <h2>{peliculaSeleccionada.titulo}</h2>
 
-                        <p>
-                            <strong>Descripción:</strong>{" "}
-                            {peliculaSeleccionada.descripcion ||
-                                "Sin descripción disponible."}
-                        </p>
+                                {peliculaSeleccionada.imagen && (
+                                    <img
+                                        src={peliculaSeleccionada.imagen}
+                                        alt={peliculaSeleccionada.titulo}
+                                    />
+                                )}
 
-                        <p>
-                            <strong>Fecha de estreno:</strong>{" "}
-                            {peliculaSeleccionada.fechaEstreno ||
-                                "Sin fecha disponible."}
-                        </p>
+                                <p>
+                                    <strong>Descripción:</strong>{" "}
+                                    {peliculaSeleccionada.descripcion ||
+                                        "Sin descripción disponible."}
+                                </p>
 
-                        <p>
-                            <strong>Duración:</strong>{" "}
-                            {peliculaSeleccionada.duracion
-                                ? `${peliculaSeleccionada.duracion} minutos`
-                                : "Sin información."}
-                        </p>
+                                <p>
+                                    <strong>Fecha de estreno:</strong>{" "}
+                                    {peliculaSeleccionada.fechaEstreno ||
+                                        "Sin fecha disponible."}
+                                </p>
 
-                        <p>
-                            <strong>Puntuación TMDB:</strong>{" "}
-                            {peliculaSeleccionada.puntuacion}
-                        </p>
+                                <p>
+                                    <strong>Duración:</strong>{" "}
+                                    {peliculaSeleccionada.duracion
+                                        ? `${peliculaSeleccionada.duracion} minutos`
+                                        : "Sin información."}
+                                </p>
 
-                        <p>
-                            <strong>Promedio CineClub:</strong>{" "}
-                            {peliculaSeleccionada.avgScore > 0
-                                ? peliculaSeleccionada.avgScore.toFixed(1)
-                                : "Todavía no hay puntuaciones"}
-                        </p>
+                                <p>
+                                    <strong>Puntuación TMDB:</strong>{" "}
+                                    {peliculaSeleccionada.puntuacion}
+                                </p>
 
-                        <div>
-                            <strong>Géneros:</strong>
+                                <p>
+                                    <strong>Promedio CineClub:</strong>{" "}
+                                    {peliculaSeleccionada.avgScore > 0
+                                        ? peliculaSeleccionada.avgScore.toFixed(1)
+                                        : "Todavía no hay puntuaciones"}
+                                </p>
 
-                            {peliculaSeleccionada.generos &&
-                                peliculaSeleccionada.generos.map((genero) => (
-                                    <span key={genero.id}>
-                                        {" "}
-                                        {genero.name}
-                                    </span>
-                                ))}
-                        </div>
+                                <div>
+                                    <strong>Géneros:</strong>
 
-                        <ReviewList
-                            reseñas={reseñas}
-                            onEliminar={eliminarReseña}
-                        />
+                                    {peliculaSeleccionada.generos &&
+                                        peliculaSeleccionada.generos.map(
+                                            (genero) => (
+                                                <span key={genero.id}>
+                                                    {" "}
+                                                    {genero.name}
+                                                </span>
+                                            )
+                                        )}
+                                </div>
 
-                        <ReviewForm
-                            movieId={peliculaSeleccionada.id}
-                            onReseñaCreada={agregarReseña}
-                        />
+                                <ReviewList
+                                    reseñas={reseñas}
+                                    onEliminar={eliminarReseña}
+                                />
+
+                                <ReviewForm
+                                    movieId={peliculaSeleccionada.id}
+                                    onReseñaCreada={agregarReseña}
+                                />
+                            </>
+                        ) : null}
                     </section>
                 )}
             </main>
