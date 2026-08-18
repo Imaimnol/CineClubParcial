@@ -14,7 +14,7 @@ function App() {
     const buscarPeliculas = async (texto) => {
         try {
             const response = await fetch(
-                `http://localhost:3001/api/movies/search?q=${encodeURIComponent(texto)}`
+                `${import.meta.env.VITE_API_URL}/api/movies/search?q=${encodeURIComponent(texto)}`
             );
 
             if (!response.ok) {
@@ -33,7 +33,7 @@ function App() {
     const seleccionarPelicula = async (id) => {
         try {
             const response = await fetch(
-                `http://localhost:3001/api/movies/${id}`
+                `${import.meta.env.VITE_API_URL}/api/movies/${id}`
             );
 
             if (!response.ok) {
@@ -43,7 +43,7 @@ function App() {
             const data = await response.json();
 
             const reviewsResponse = await fetch(
-                `http://localhost:3001/api/movies/${id}/reviews`
+                `${import.meta.env.VITE_API_URL}/api/movies/${id}/reviews`
             );
 
             if (!reviewsResponse.ok) {
@@ -76,11 +76,11 @@ function App() {
     const eliminarReseña = async (reviewId) => {
         try {
             const response = await fetch(
-    `http://localhost:3001/api/reviews/${reviewId}`,
-    {
-        method: "DELETE",
-    }
-);
+                `${import.meta.env.VITE_API_URL}/api/reviews/${reviewId}`,
+                {
+                    method: "DELETE",
+                }
+            );
 
             if (!response.ok) {
                 throw new Error("Error al eliminar la reseña.");

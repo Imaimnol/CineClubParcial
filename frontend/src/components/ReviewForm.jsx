@@ -8,18 +8,23 @@ function ReviewForm({ movieId, onReseñaCreada }) {
     const enviarReseña = async (e) => {
         e.preventDefault();
 
+        if (!author.trim() || !comment.trim()) {
+            alert("El nombre y el comentario son obligatorios.");
+            return;
+        }
+
         try {
             const response = await fetch(
-                `http://localhost:3001/api/movies/${movieId}/reviews`,
+                `${import.meta.env.VITE_API_URL}/api/movies/${movieId}/reviews`,
                 {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        author,
+                        author: author.trim(),
                         score: Number(score),
-                        comment,
+                        comment: comment.trim(),
                     }),
                 }
             );
