@@ -15,7 +15,7 @@ function MovieCard({ pelicula, onSeleccionar }) {
             </p>
 
             <p>
-                Puntuación: {pelicula.puntuacion}
+                ★ {pelicula.puntuacion || "Sin puntuación"}
             </p>
 
             <button onClick={() => onSeleccionar(pelicula.id)}>
